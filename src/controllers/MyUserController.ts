@@ -1,29 +1,27 @@
 import { Request, Response } from "express";
 import User from "../models/user";
 
-const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+const getCurrentUser = async (req: Request, res: Response):Promise<Response | any> => {
   try {
     const currentUser = await User.findOne({ _id: req.userId });
     if (!currentUser) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json(currentUser);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Something went wrong" });
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 
-const createCurrentUser = async (req: Request, res: Response): Promise<void> => {
+const createCurrentUser = async (req: Request, res: Response):Promise<Response | any> => {
   try {
     const { auth0Id } = req.body;
     const existingUser = await User.findOne({ auth0Id });
 
     if (existingUser) {
-      res.status(200).send();
-      return;
+      return res.status(200).send();
     }
 
     const newUser = new User(req.body);
@@ -36,14 +34,13 @@ const createCurrentUser = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-const updateCurrentUser = async (req: Request, res: Response): Promise<void> => {
+const updateCurrentUser = async (req: Request, res: Response):Promise<Response | any> => {
   try {
     const { name, addressLine1, country, city } = req.body;
     const user = await User.findById(req.userId);
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return res.status(404).json({ message: "User not found" });
     }
 
     user.name = name;
@@ -53,7 +50,7 @@ const updateCurrentUser = async (req: Request, res: Response): Promise<void> => 
 
     await user.save();
 
-    res.json(user);
+    res.send(user);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error updating user" });
